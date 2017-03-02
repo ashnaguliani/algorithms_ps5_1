@@ -68,7 +68,11 @@ class MinHeap:
         else:
             right_child = [float("inf")]
  
-        while self.heap[current_index][0] >= left_child[0] or self.heap[current_index][0] >= right_child[0]:
+        while len(self.heap) == 1 or (self.heap[current_index][0] >= left_child[0] or self.heap[current_index][0] >= right_child[0]):
+            if len(self.heap) == 1:
+                del self.heap[0]
+                break
+
             if left_child[0] < right_child[0]:
                 small_index = left_index
             else:
@@ -105,10 +109,14 @@ class MinHeap:
 class Node(object):
     right_child = None
     left_child = None
+    total_weight = None
 
     def __init__(self, left=None, right=None):
         self.right_child = right
         self.left_child = left
+        print left[0], left[1]
+        print right[0], right[1]
+        self.total_weight = left[0] + right[0]
 
     def right(self):
         return self.right_child
@@ -155,19 +163,29 @@ def string2freq(x):
 
 def huffmanEncode(S, f):
     length = len(f)
-    H = MinHeap(f)
+    H = MinHeap([list(x) for x in zip(S, f)])
+    print length
+    remaining = 5
+    k = length
+    while remaining > 1:
+        i, remaining = H.pop_min()
+        j, remaining = H.pop_min()
+
+        newNode = Node(i, j)
+        H.insert_element(newNode)
+
+        print(remaining)
 
 
-    for k in range((length+1), (2*length - 1)):
-        i = H.pop_min()
-        j = H.pop_min()
-        newNode = Node(i, j) #create a node numbered k with children i,j
-        
-        S.append(newNode)
-        
-        f[k] = f[i][0] + f[j][0]
 
-        H.insert_element([k,f[k]])
+    #for k in range((length+1), (2*length - 1)):
+    #    print k
+    #    i = H.pop_min()
+    #    j = H.pop_min()
+    #    newNode = Node(i, j) #create a node numbered k with children i,j
+
+    #    f.append([(i[0] + j[0]), [i[1], j[1]]])
+        #S.append(newNode)
 
 
 def encodeString(x, T): #takes an input ASCII string x and a codebook T, and returns a string y, which is the binary encoding of x using T:
