@@ -3,7 +3,7 @@ import math
 import random
  
  
-s = "the road not taken by robert frost two roads diverged in a yellow wood, and sorry i could not travel both and be one traveler, long i stood and looked down one as far as i could to where it bent in the undergrowth; then took the other, as just as fair, and having perhaps the better claim, because it was grassy and wanted wear; though as for that the passing there had worn them really about the same, and both that morning equally lay in leaves no step had trodden black. oh, i kept the first for another day! yet knowing how way leads on to way, i doubted if i should ever come back. i shall be telling this with a sigh somewhere ages and ages hence: two roads diverged in a wood, and i- i took the one less traveled by, and that has made all the difference."
+x = "the road not taken by robert frost two roads diverged in a yellow wood, and sorry i could not travel both and be one traveler, long i stood and looked down one as far as i could to where it bent in the undergrowth; then took the other, as just as fair, and having perhaps the better claim, because it was grassy and wanted wear; though as for that the passing there had worn them really about the same, and both that morning equally lay in leaves no step had trodden black. oh, i kept the first for another day! yet knowing how way leads on to way, i doubted if i should ever come back. i shall be telling this with a sigh somewhere ages and ages hence: two roads diverged in a wood, and i- i took the one less traveled by, and that has made all the difference."
  
  
 class MinHeap:
@@ -116,7 +116,7 @@ class Node(object):
         self.left_child = left
         print left[0], left[1]
         print right[0], right[1]
-        self.total_weight = left[0] + right[0]
+        self.total_weight = [left[0] + right[0]]
 
     def right(self):
         return self.right_child
@@ -144,7 +144,20 @@ def createTree(array, parent):
         createTree(array, left_parent)
 
     return parent
-   
+
+
+def createDict(S, parent, encode_string, T):
+    left = parent.left
+    right = parent.right
+
+    if type(right) is Node:
+        T = createDict(S, right, (encode_string + "1"), T)
+
+    if type(left) is Node:
+        T = createDict(S, right, (encode_string + "0"), T) 
+
+    return T
+
  
 def string2freq(x):
     total_freq = [0 for _ in range(90)]
@@ -158,34 +171,32 @@ def string2freq(x):
         if total_freq[n] != 0:
             freq.append(total_freq[n])
             symbols.append(chr(ord(' ') + n))
-    return freq, symbols
+    return [symbols, freq]
 
 
 def huffmanEncode(S, f):
     length = len(f)
     H = MinHeap([list(x) for x in zip(S, f)])
-    print length
-    remaining = 5
-    k = length
-    while remaining > 1:
-        i, remaining = H.pop_min()
-        j, remaining = H.pop_min()
+    
 
-        newNode = Node(i, j)
-        H.insert_element(newNode)
+    for k in range((length+1), (2*length - 1)):
+        i = H.pop_min()
+        j = H.pop_min()
+        newNode = Node(i, j) #create a node numbered k with children i,j
 
-        print(remaining)
+        f.append([(i[0] + j[0]), [i[1], j[1]]])
+        S.append(newNode)
+        
+        H.insert_element(f[k])
 
 
+    root_length = S[len(S) - 1]
+    tree = createTree(S, root_length)
 
-    #for k in range((length+1), (2*length - 1)):
-    #    print k
-    #    i = H.pop_min()
-    #    j = H.pop_min()
-    #    newNode = Node(i, j) #create a node numbered k with children i,j
+    encode_string = ""
+    T = createDict(S, tree, encode_string, T)
 
-    #    f.append([(i[0] + j[0]), [i[1], j[1]]])
-        #S.append(newNode)
+    return T
 
 
 def encodeString(x, T): #takes an input ASCII string x and a codebook T, and returns a string y, which is the binary encoding of x using T:
@@ -196,11 +207,14 @@ def encodeString(x, T): #takes an input ASCII string x and a codebook T, and ret
     return y
 
  
-if __name__ == "__main__":
-    S, f = string2freq(s)
-    huffmanEncode(S, f)
+def main():
+    y = encodeString(x, huffmanEncode(string2freq(x))),
+    print y
+
+main()
 
 
 # https://www.youtube.com/watch?v=fJORlbOGm9Y
 # http://stackoverflow.com/questions/31217116/pairwise-appending-in-python-without-zip
-# Maxine Hartnett answered questions about the heap implementation
+# Maxine Hartnett answered questions about the heap & node implementations
+
